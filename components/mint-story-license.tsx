@@ -69,7 +69,7 @@ export function MintStoryLicense({
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [isMinting, setIsMinting] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>("0x01");
+  const [txHash, setTxHash] = useState<string | null>(null);
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
 
