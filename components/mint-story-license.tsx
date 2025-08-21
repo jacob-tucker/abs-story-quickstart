@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { formatEther, parseEther } from "viem";
 import { type ClassValue } from "clsx";
@@ -75,6 +76,7 @@ export function MintStoryLicense({
   const [txHash, setTxHash] = useState<string | null>(null);
   const [ethCost, setEthCost] = useState<string | null>(null);
   const [isLoadingCost, setIsLoadingCost] = useState(false);
+  const [storyAddress, setStoryAddress] = useState<string>("");
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
 
@@ -233,7 +235,7 @@ export function MintStoryLicense({
         paymentAmount: paymentAmountWei.toString(),
         senderAddress: address as `0x${string}`,
         licenseTermsId: licenseTermsId,
-        receiverAddress: "0x089d75C9b7E441dA3115AF93FF9A855BDdbfe384",
+        receiverAddress: storyAddress,
       };
 
       const { srcTxHash, dstTxHash } = await executeRoyaltyPayment(
@@ -306,7 +308,7 @@ export function MintStoryLicense({
             </div>
 
             {/* License Terms */}
-            <div className="pt-3 border-t border-gray-100">
+            <div className="py-3 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-500">Commercial Use:</span>
@@ -359,6 +361,27 @@ export function MintStoryLicense({
               </div>
             </div>
 
+            {/* Story Address Input */}
+            <div className="pt-3 border-t border-gray-100">
+              <label
+                htmlFor="story-address"
+                className="block text-xs font-medium text-gray-700 mb-2"
+              >
+                Story Wallet Address (Recipient) *
+              </label>
+              <Input
+                id="story-address"
+                type="text"
+                placeholder="0x..."
+                value={storyAddress}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setStoryAddress(e.target.value)
+                }
+                className="text-xs"
+                required
+              />
+            </div>
+
             {/* Price & Button Section */}
             <div className="pt-4 border-t border-gray-100">
               <div className="flex items-center justify-between">
@@ -374,10 +397,8 @@ export function MintStoryLicense({
                     />
                     {isLoadingCost ? (
                       <span className="text-gray-400">Loading...</span>
-                    ) : ethCost ? (
-                      `${ethCost} ETH`
                     ) : (
-                      `${licenseTerms.defaultMintingFee} ETH`
+                      `${ethCost} ETH`
                     )}
                   </div>
                 </div>
@@ -385,7 +406,7 @@ export function MintStoryLicense({
                   onClick={handleMintLicense}
                   size="sm"
                   className="px-4 py-2 font-medium"
-                  disabled={isMinting}
+                  disabled={isMinting || !storyAddress.trim()}
                 >
                   {isMinting ? "Minting..." : "Mint License"}
                 </Button>
