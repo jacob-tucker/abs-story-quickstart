@@ -8,7 +8,7 @@ import {
   parseAbi,
   WalletClient,
 } from "viem";
-import { abstract, base, story } from "viem/chains";
+import { abstract, story } from "viem/chains";
 import { DEBRIDGE_MULTICALL } from "./constants";
 import { RoyaltyPaymentParams, DeBridgeApiResponse } from "./types";
 

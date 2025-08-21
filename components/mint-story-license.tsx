@@ -69,7 +69,7 @@ export function MintStoryLicense({
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [isMinting, setIsMinting] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>("0x01");
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
 
@@ -340,7 +340,7 @@ export function MintStoryLicense({
               {txHash && (
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="text-sm text-green-800 mb-2">
-                    ✅ License minted successfully!
+                    License minted successfully!
                   </div>
                   <a
                     href={`https://explorer.mainnet.abs.xyz/tx/${txHash}`}
