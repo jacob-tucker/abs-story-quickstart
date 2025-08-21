@@ -9,7 +9,10 @@ import { formatEther, parseEther } from "viem";
 import { type ClassValue } from "clsx";
 import { useAccount, useWalletClient } from "wagmi";
 import { RoyaltyPaymentParams } from "@/lib/types";
-import { executeRoyaltyPayment } from "@/lib/debridge";
+import {
+  executeRoyaltyPayment,
+  getDeBridgeTransactionData,
+} from "@/lib/debridge";
 import { convertGithubBlobToRaw } from "@/lib/utils";
 
 interface MintStoryLicenseProps {
@@ -70,8 +73,49 @@ export function MintStoryLicense({
   const [termsError, setTermsError] = useState<string | null>(null);
   const [isMinting, setIsMinting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [ethCost, setEthCost] = useState<string | null>(null);
+  const [isLoadingCost, setIsLoadingCost] = useState(false);
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
+
+  const getEthCostEstimation = async () => {
+    if (!address) return;
+
+    try {
+      setIsLoadingCost(true);
+      const paymentAmountWei = parseEther(licenseTerms!.defaultMintingFee);
+
+      const paymentParams: RoyaltyPaymentParams = {
+        ipAssetId: ipId,
+        paymentAmount: paymentAmountWei.toString(),
+        senderAddress: address,
+        licenseTermsId: licenseTermsId,
+        receiverAddress: address, // just use `address` here for now because it won't change estimate. in reality this should be `storyAddress`
+      };
+
+      const deBridgeResponse = await getDeBridgeTransactionData(
+        paymentParams,
+        true
+      );
+
+      // Extract ETH cost from the transaction value
+      const ethAmountWei = BigInt(deBridgeResponse.tx.value);
+      const ethAmount = formatEther(ethAmountWei);
+      setEthCost(parseFloat(ethAmount).toFixed(6));
+    } catch (error) {
+      console.error("Error getting cost estimation:", error);
+      setEthCost("ERROR"); // Fallback estimate
+    } finally {
+      setIsLoadingCost(false);
+    }
+  };
+
+  // Get cost estimation when license terms are loaded and address is available
+  useEffect(() => {
+    if (address && licenseTerms && !isLoadingTerms) {
+      getEthCostEstimation();
+    }
+  }, [address, licenseTerms, isLoadingTerms]);
 
   // Fetch IP Asset Metadata
   useEffect(() => {
@@ -322,8 +366,19 @@ export function MintStoryLicense({
                   <div className="text-xs text-gray-500 mb-1">
                     License Price
                   </div>
-                  <div className="text-lg font-bold text-gray-900">
-                    {licenseTerms.defaultMintingFee} ETH
+                  <div className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <img
+                      src="/abstract-logo.jpg"
+                      alt="Abstract"
+                      className="w-5 h-5 rounded-sm"
+                    />
+                    {isLoadingCost ? (
+                      <span className="text-gray-400">Loading...</span>
+                    ) : ethCost ? (
+                      `${ethCost} ETH`
+                    ) : (
+                      `${licenseTerms.defaultMintingFee} ETH`
+                    )}
                   </div>
                 </div>
                 <Button

@@ -31,10 +31,19 @@ export default function Home() {
             <Link
               href="https://docs.story.foundation"
               className="text-blue-600 font-bold underline decoration-2 decoration-blue-400 underline-offset-4 hover:decoration-blue-600 transition-colors"
+              target="_blank"
             >
               Story
             </Link>{" "}
-            using Abstract $ETH
+            using{" "}
+            <Link
+              href="https://docs.abs.xyz"
+              className="text-[#18ff80] font-bold underline decoration-2 decoration-[#18ff80] underline-offset-4 hover:decoration-[#18ff80] transition-colors"
+              target="_blank"
+            >
+              Abstract
+            </Link>{" "}
+            $ETH
           </p>
         </div>
 
