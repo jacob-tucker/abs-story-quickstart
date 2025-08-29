@@ -6,6 +6,52 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Converts an IPFS URL to a full HTTPS gateway URL
+ * @param ipfsUrl - IPFS URL (e.g., ipfs://QmXxXxXx or ipfs://QmXxXxXx/path/to/file)
+ * @param gateway - IPFS gateway URL (defaults to https://ipfs.io/ipfs/)
+ * @returns Full HTTPS IPFS gateway URL
+ *
+ * @example
+ * ```typescript
+ * const ipfsUrl = "ipfs://QmXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx"
+ * const fullUrl = convertIpfsToHttps(ipfsUrl)
+ * // Returns: "https://ipfs.io/ipfs/QmXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx"
+ *
+ * const ipfsUrlWithPath = "ipfs://QmXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx/metadata.json"
+ * const fullUrlWithPath = convertIpfsToHttps(ipfsUrlWithPath)
+ * // Returns: "https://ipfs.io/ipfs/QmXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx/metadata.json"
+ * ```
+ */
+export function convertIpfsToHttps(
+  ipfsUrl: string,
+  gateway: string = "https://ipfs.io/ipfs/"
+): string {
+  try {
+    // Check if it's already an HTTPS URL
+    if (ipfsUrl.startsWith("https://") || ipfsUrl.startsWith("http://")) {
+      return ipfsUrl;
+    }
+
+    // Check if it's an IPFS URL
+    if (!ipfsUrl.startsWith("ipfs://")) {
+      throw new Error("Not a valid IPFS URL");
+    }
+
+    // Remove the ipfs:// protocol
+    const ipfsPath = ipfsUrl.replace("ipfs://", "");
+
+    // Ensure gateway ends with a slash
+    const normalizedGateway = gateway.endsWith("/") ? gateway : gateway + "/";
+
+    // Construct the full HTTPS URL
+    return normalizedGateway + ipfsPath;
+  } catch (error) {
+    console.error("Error converting IPFS URL to HTTPS:", error);
+    throw new Error(`Invalid IPFS URL: ${ipfsUrl}`);
+  }
+}
+
+/**
  * Converts a GitHub blob URL to a raw URL
  * @param blobUrl - GitHub blob URL (e.g., https://github.com/user/repo/blob/branch/path/file.json)
  * @returns Raw GitHub URL (e.g., https://raw.githubusercontent.com/user/repo/branch/path/file.json)

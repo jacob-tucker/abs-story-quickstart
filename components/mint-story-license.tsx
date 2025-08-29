@@ -14,7 +14,7 @@ import {
   executeRoyaltyPayment,
   getDeBridgeTransactionData,
 } from "@/lib/debridge";
-import { convertGithubBlobToRaw } from "@/lib/utils";
+import { convertGithubBlobToRaw, convertIpfsToHttps } from "@/lib/utils";
 
 interface MintStoryLicenseProps {
   ipId: string;
@@ -287,7 +287,7 @@ export function MintStoryLicense({
           {/* Image */}
           <div className="aspect-video w-full overflow-hidden">
             <img
-              src={ipAssetMetadata.image}
+              src={convertIpfsToHttps(ipAssetMetadata.image)}
               alt={ipAssetMetadata.title}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
             />
