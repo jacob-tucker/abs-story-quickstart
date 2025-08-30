@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { AbstractPlayerCard } from "@/components/abstract-player-card";
 import { SuccessfulExampleCard } from "@/components/successful-example-card";
 import Link from "next/link";
+import { CrossmintWallet } from "@/components/crossmint-wallet";
 
 export default function Home() {
   const { isConnected } = useAccount();
@@ -72,6 +73,7 @@ export default function Home() {
                 licenseTermsId={IP_ASSET_LICENSE_TERMS_ID}
               />
             </div>
+            <CrossmintWallet />
           </div>
         )}
       </div>
