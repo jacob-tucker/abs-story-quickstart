@@ -73,7 +73,6 @@ export default function Home() {
                 licenseTermsId={IP_ASSET_LICENSE_TERMS_ID}
               />
             </div>
-            <CrossmintWallet />
           </div>
         )}
       </div>
