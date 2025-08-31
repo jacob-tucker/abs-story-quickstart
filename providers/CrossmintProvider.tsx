@@ -15,7 +15,7 @@ export default function CrossmintClientProvider({
     <CrossmintProvider
       apiKey={process.env.NEXT_PUBLIC_CROSSMINT_CLIENT_KEY as string}
     >
-      <CrossmintAuthProvider>
+      <CrossmintAuthProvider loginMethods={["email", "google"]}>
         <CrossmintWalletProvider
           createOnLogin={{
             chain: "story-testnet",
