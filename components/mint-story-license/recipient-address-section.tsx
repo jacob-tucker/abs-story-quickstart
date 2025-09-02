@@ -59,7 +59,8 @@ export function RecipientAddressSection({
             {!crossmintWallet?.address ? (
               <div>
                 <div className="text-xs font-medium text-gray-700 mb-2">
-                  Create a wallet with just your email address:
+                  Create a wallet to receive your license with just your email
+                  address:
                 </div>
                 <CrossmintWallet />
               </div>
