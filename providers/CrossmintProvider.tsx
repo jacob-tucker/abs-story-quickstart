@@ -18,7 +18,7 @@ export default function CrossmintClientProvider({
       <CrossmintAuthProvider loginMethods={["email", "google"]}>
         <CrossmintWalletProvider
           createOnLogin={{
-            chain: "story-testnet",
+            chain: "story",
             signer: {
               type: "email",
             },
