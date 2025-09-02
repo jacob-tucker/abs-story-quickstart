@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextAbstractWalletProvider } from "@/components/agw-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import CrossmintClientProvider from "@/providers/CrossmintProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,12 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <NextAbstractWalletProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-          <Toaster />
-        </body>
+        <CrossmintClientProvider>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            {children}
+            <Toaster />
+          </body>
+        </CrossmintClientProvider>
       </NextAbstractWalletProvider>
     </html>
   );
