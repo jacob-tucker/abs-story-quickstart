@@ -8,8 +8,10 @@ This allows developers to integrate licensing into their Abstract apps. For exam
 
 1. Clone the repo: `git clone https://github.com/jacob-tucker/abs-story-quickstart`
 
-2. `cp .env.example .env`
+2. Go to the [Crossmint Dev Dashboard](https://www.crossmint.com/console/projects/apiKeys) on Production (this is a mainnet example) and create a new "Client-side key". Make sure to enable all **Wallet API** and **Users** permissions (you can update these if you want later).
 
-3. `npm install`
+3. `cp .env.example .env`. Make sure to add your crossmint client key.
 
-4. `npm run dev`
+4. `npm install`
+
+5. `npm run dev`
