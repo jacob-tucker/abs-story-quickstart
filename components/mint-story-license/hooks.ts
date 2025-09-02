@@ -8,8 +8,9 @@ import { getDeBridgeTransactionData } from "@/lib/debridge";
 import { RoyaltyPaymentParams } from "@/lib/types";
 import { IPAssetMetadata, LicenseTerms } from "./types";
 
-export function useIPAssetMetadata(ipId: string) {
+export function useIPAssetMetadata(ipId: string, licenseTermsId: string) {
   const [metadata, setMetadata] = useState<IPAssetMetadata | null>(null);
+  const [licenseTerms, setLicenseTerms] = useState<LicenseTerms | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,13 +20,21 @@ export function useIPAssetMetadata(ipId: string) {
         setIsLoading(true);
         setError(null);
 
-        const url = `https://api.storyapis.com/api/v3/assets/${ipId}/metadata`;
+        const url = `https://api.storyapis.com/api/v4/assets`;
         const options = {
-          method: "GET",
+          method: "POST",
           headers: {
             "X-Api-Key": process.env.NEXT_PUBLIC_STORY_API_KEY!,
-            "X-Chain": "story",
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            // orderBy: "blockNumber",
+            // orderDirection: "desc",
+            // pagination: { offset: 0 },
+            includeLicenses: true,
+            moderated: false,
+            where: { ipIds: [ipId] },
+          }),
         };
 
         const response = await fetch(url, options);
@@ -36,14 +45,31 @@ export function useIPAssetMetadata(ipId: string) {
         }
 
         const data = await response.json();
-        const ipMetadata = data.metadataUri;
-        const ipMetadataJson = await fetch(ipMetadata);
-        const ipMetadataJsonData = await ipMetadataJson.json();
-        setMetadata(ipMetadataJsonData);
+        console.log(data.data[0]);
+        const ipaMetadataUri = data.data[0].ipaMetadataUri;
+        const ipMetadataResponse = await fetch(ipaMetadataUri);
+        const ipMetadataJson = await ipMetadataResponse.json();
+        setMetadata(ipMetadataJson);
+
+        const licenseTerms = data.data[0].licenses.find(
+          (x: any) => x.licenseTermsId == licenseTermsId
+        );
+        const terms = {
+          ...licenseTerms.terms,
+          defaultMintingFee: formatEther(licenseTerms.terms.defaultMintingFee),
+        };
+        const offChainTermsResponse = await fetch(
+          convertGithubBlobToRaw(terms.uri)
+        );
+        const offChainTerms = await offChainTermsResponse.json();
+        console.log({ ...terms, offChainTerms });
+        setLicenseTerms({ ...terms, offChainTerms });
       } catch (error) {
         console.error("Error fetching IP Asset metadata:", error);
         setError(
-          error instanceof Error ? error.message : "Failed to fetch metadata"
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch metadata or license terms"
         );
       } finally {
         setIsLoading(false);
@@ -55,68 +81,7 @@ export function useIPAssetMetadata(ipId: string) {
     }
   }, [ipId]);
 
-  return { metadata, isLoading, error };
-}
-
-export function useLicenseTerms(ipId: string, licenseTermsId: string) {
-  const [licenseTerms, setLicenseTerms] = useState<LicenseTerms | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchLicenseTerms = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const url = `https://api.storyapis.com/api/v3/detailed-ip-license-terms`;
-        const options = {
-          method: "POST",
-          headers: {
-            "X-Api-Key": process.env.NEXT_PUBLIC_STORY_API_KEY!,
-            "X-Chain": "story",
-          },
-          body: `{"options":{"where":{"ipIds":["${ipId}"]}}}`,
-        };
-
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch license terms: ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-        const licenseTerms = data.data.find((x: any) => x.id == licenseTermsId);
-        const terms = {
-          ...licenseTerms.terms,
-          defaultMintingFee: formatEther(licenseTerms.terms.defaultMintingFee),
-        };
-
-        const offChainTermsResponse = await fetch(
-          convertGithubBlobToRaw(terms.uri)
-        );
-        const offChainTerms = await offChainTermsResponse.json();
-        console.log({ ...terms, offChainTerms });
-        setLicenseTerms({ ...terms, offChainTerms });
-      } catch (error) {
-        console.error("Error fetching license terms:", error);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch license terms"
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (licenseTermsId) {
-      fetchLicenseTerms();
-    }
-  }, [licenseTermsId, ipId]);
-
-  return { licenseTerms, isLoading, error };
+  return { metadata, licenseTerms, isLoading, error };
 }
 
 export function useEthCostEstimation(

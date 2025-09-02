@@ -11,11 +11,7 @@ import { useWallet } from "@crossmint/client-sdk-react-ui";
 import { RoyaltyPaymentParams } from "@/lib/types";
 import { executeRoyaltyPayment } from "@/lib/debridge";
 import { MintStoryLicenseProps } from "./types";
-import {
-  useIPAssetMetadata,
-  useLicenseTerms,
-  useEthCostEstimation,
-} from "./hooks";
+import { useIPAssetMetadata, useEthCostEstimation } from "./hooks";
 import { IPAssetDisplay } from "./ip-asset-display";
 import { LicenseTermsDisplay } from "./license-terms-display";
 import { RecipientAddressSection } from "./recipient-address-section";
@@ -38,21 +34,16 @@ export function MintStoryLicense({
   // Custom hooks for data fetching
   const {
     metadata: ipAssetMetadata,
+    licenseTerms,
     isLoading: isLoadingMetadata,
     error: metadataError,
-  } = useIPAssetMetadata(ipId);
-
-  const {
-    licenseTerms,
-    isLoading: isLoadingTerms,
-    error: termsError,
-  } = useLicenseTerms(ipId, licenseTermsId);
+  } = useIPAssetMetadata(ipId, licenseTermsId);
 
   const { ethCost, isLoading: isLoadingCost } = useEthCostEstimation(
     ipId,
     licenseTermsId,
     licenseTerms,
-    isLoadingTerms
+    isLoadingMetadata
   );
 
   const handleMintLicense = async () => {
@@ -102,8 +93,8 @@ export function MintStoryLicense({
     }
   };
 
-  const isLoading = isLoadingMetadata || isLoadingTerms;
-  const hasError = !!(metadataError || termsError);
+  const isLoading = isLoadingMetadata;
+  const hasError = !!metadataError;
 
   return (
     <Card
@@ -118,9 +109,7 @@ export function MintStoryLicense({
         </div>
       ) : hasError ? (
         <div className="p-4 text-center">
-          <div className="text-red-500 text-sm mb-3">
-            {metadataError || termsError}
-          </div>
+          <div className="text-red-500 text-sm mb-3">{metadataError}</div>
           <Button
             variant="outline"
             size="sm"
